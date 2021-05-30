@@ -1,0 +1,38 @@
+<style>
+    #container {
+        margin: auto;
+        height: auto;
+        box-sizing: border-box;
+        width: 80%;
+    }
+        ul {
+        word-break: break-all;
+    }
+</style>
+
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">User Data</span>
+    </div>
+</nav>
+
+<div id="container" style="margin-top: 1rem;">
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            First Name: {{firstName}}
+            <span><i class="bi bi-moon-stars-fill"></i></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Last Name: {{lastName}}
+            <span><i class="bi bi-lightning-charge-fill"></i></span>
+        </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+            Unique Id: {{uniqueId}}
+            <span><i class="bi bi-lightning-charge-fill"></i></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Token: {{idToken}}
+            <span><i class="bi bi-gem"></i></span>
+        </li>
+    </ul>
+</div>

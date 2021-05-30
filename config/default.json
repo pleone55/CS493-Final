@@ -1,0 +1,7 @@
+{
+    "client_id": "120361562305-a3u7p31idij715l2cj0hqrjra230poaa.apps.googleusercontent.com",
+    "client_secret": "7Aaz7cF-Ii-AfWGP6kd031bS",
+    "domain": "https://accounts.google.com",
+    "jwksUri": "https://www.googleapis.com/oauth2/v3/certs",
+    "secret": "superSecret$"
+}
