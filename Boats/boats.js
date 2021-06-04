@@ -62,6 +62,7 @@ const getAllOwnerBoats = (req, owner) => {
     }
     return datastore.runQuery(query)
         .then(entities => {
+            console.log(entities);
             //set the results to the results from the datastore
             results.item = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner);
             const boats = entities[0].map(ds.fromDatastore);
@@ -75,12 +76,39 @@ const getAllOwnerBoats = (req, owner) => {
         });
 };
 
+const patchBoat = (id, name, type, length, owner) => {
+    const key = datastore.key([BOATS, parseInt(id, 10)]);
+    const newBoat = {
+        name: name,
+        type: type,
+        length: length,
+        owner: owner
+    };
+    return datastore.update({
+        key: key,
+        data: newBoat
+    }).then(() => { return key });
+}
+
 /**
- * 
- * @param {string} id of the boat 
- * @returns the key of the boat from the datastore
+ * Function that returns a boat by the id
+ * @param {string} id of the boat
+ * @returns the boat specified by the id 
  */
-const getBoat = id => {
+const getBoat = (req, id) => {
+    const key = datastore.key([BOATS, parseInt(id, 10)]);
+    const query = datastore.createQuery(BOATS).filter('__key__', '=', key);
+    return datastore.runQuery(query)
+        .then(results => {
+            var keyBoat = results[0].map(ds.fromDatastore);
+            if(keyBoat[0] != null) {
+                keyBoat[0].self = `${req.protocol}://${req.get("host")}${req.baseUrl}/${key.id}`
+                return keyBoat[0];
+            }
+        });
+};
+
+const getBoatForPatch = id => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
     return datastore.get(key);
 };
@@ -123,11 +151,130 @@ router.post('/', checkJwt, (req, res) => {
     }
 });
 
-//Get all boats of the owner both private and public
+//Patch user boat properties
+router.patch('/:boat_id', checkJwt, (req, res) => {
+    if(req.get('Content-Type') !== 'application/json') {
+        res.status(415).json({ Error: 'Server only accepts application/json data.' });
+    } else if(!checkJwt) {
+        res.status(401).end();
+    }
+    if(Object.keys(req.body).indexOf("owner") > -1) {
+        res.status(400).json({ Error: "Cannot update the owner of the boat." });
+    }
+    if(req.body.name && req.body.type && req.body.length) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].name = req.body.name;
+            boat[0].type = req.body.type;
+            boat[0].length = req.body.length;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(() => {
+                        console.log(boat);
+                        res.status(200).end()
+                    });
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.name && req.body.type) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].name = req.body.name;
+            boat[0].type = req.body.type;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(() => {
+                        console.log(boat);
+                        res.status(200).end()
+                    });
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.name && req.body.length) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].name = req.body.name;
+            boat[0].length = req.body.length;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(() => {
+                        console.log(boat);
+                        res.status(200).end()
+                    });
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.type && req.body.length) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].type = req.body.type;
+            boat[0].length = req.body.length;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(() => {
+                        console.log(boat);
+                        res.status(200).end()
+                    });
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.name) {
+        getBoatForPatch(req.params.boat_id)
+            .then(boat => {
+                boat[0].name = req.body.name;
+                try {
+                    patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                        .then(() => {
+                            console.log(boat);
+                            res.status(200).end()
+                        });
+                } catch (err) {
+                    res.status(400).json({ Error: "Could not patch boat attribute" });
+                }
+            })
+            .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.type) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].type = req.body.type;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(res.status(200).end());
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else if(req.body.length) {
+        getBoatForPatch(req.params.boat_id)
+        .then(boat => {
+            boat[0].length = req.body.length;
+            try {
+                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
+                    .then(res.status(200).end());
+            } catch (err) {
+                res.status(400).json({ Error: "Could not patch boat attribute" });
+            }
+        })
+        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
+    } else {
+        res.status(400).json({ Error: "Something went wrong" });
+    }
+});
+
+//Get all boats of the owner
 router.get('/', checkJwt, (req, res) => {
     getAllOwnerBoats(req, req.user.sub)
         .then(boats => {
-            return res.status(200).json(boats);
+            res.status(200).json(boats);
         });
 });
 
@@ -141,13 +288,33 @@ router.delete('/:boat_id', checkJwt, (req, res) => {
                 if(!boat[0]) {
                     res.status(404).json({ Error: "No boat with this boat_id exists" });
                 } else if(boat[0].owner && boat[0].owner !== req.user.sub) {
-                    res.status(403).json({ Error: "Boat is owner by someone else" });
+                    res.status(403).json({ Error: "Boat is owned by someone else" });
                 } else {
                     deleteBoat(req.params.boat_id)
                         .then(res.status(204).end());
                 }
             });
     }
+});
+
+//Get boat by id
+//Supports viewing boat in JSON only
+router.get('/:boat_id', (req, res) => {
+    getBoat(req, req.params.boat_id)
+        .then(boat => {
+            if(boat) {
+                const accepts = req.accepts(['application/json']);
+                if(!accepts) {
+                    res.status(406).send('Not Acceptable');
+                } else if(accepts === 'application/json') {
+                    res.status(200).json(boat);
+                } else {
+                    res.status(500).send('Content Type not correct.');
+                }
+            } else {
+                res.status(404).json({ Error: "No boat with this boat_id exists." });
+            }
+        });
 });
 
 /* ------------- End Boats Routes ------------- */

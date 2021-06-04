@@ -123,8 +123,18 @@ router.get('/granted', (req, res) => {
             var firstName = person.names[0].givenName;
             var lastName = person.names[0].familyName;
             var uniqueId = person.names[0].metadata.source.id;
-            createUser(firstName, lastName, uniqueId);
-            res.render('userData', context);
+
+            const query = datastore.createQuery(USERS).filter('uniqueId', uniqueId);
+            return datastore.runQuery(query)
+                .then(uniq => {
+                    const uid = uniq[0].map(ds.fromDatastore);
+                    if(!uid[0]) {
+                        createUser(firstName, lastName, uniqueId);
+                    } else {
+                        uid[0].uniqueId == uniqueId ? console.log("User with uniqueId already exists. User is authenticated instead.") : undefined;
+                    }
+                    res.render('userData', context);
+                });
         })
         .catch(err => {
             console.log(err);
