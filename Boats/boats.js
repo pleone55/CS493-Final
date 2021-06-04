@@ -16,7 +16,7 @@ router.use(bodyParser.json());
 const ds = require('../Datastore/datastore');
 const datastore = ds.datastore;
 
-
+//Function to check if the JWT value is valid
 const checkJwt = jwt({
     secret: jwksRsa.expressJwtSecret({
         cache: true,
@@ -31,14 +31,22 @@ const checkJwt = jwt({
 
 /* ------------- Begin Boats Model ------------- */
 
+/**
+ * 
+ * @param {string} name of the boat 
+ * @param {string} type of the boat
+ * @param {string} length of the boat
+ * @param {string} owner of the boat
+ * @returns the created boat and its attributes
+ */
 const createBoat = (name, type, length, owner) => {
     const key = datastore.key(BOATS);
     const boat = {
         name: name,
         type: type,
         length: length,
-        owner: owner,
-        containers: []
+        containers: [],
+        owner: owner
     };
     return datastore.save({
         key: key,
@@ -76,19 +84,55 @@ const getAllOwnerBoats = (req, owner) => {
         });
 };
 
+/**
+ * 
+ * @param {string} id of the boat to patch
+ * @param {string} name of the patched boat
+ * @param {string} type of the patched boat
+ * @param {Number} length of the patched boat
+ * @param {string} owner of the boat
+ * @returns the updated boat with the updated attributes
+ */
 const patchBoat = (id, name, type, length, owner) => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
     const newBoat = {
         name: name,
         type: type,
         length: length,
+        containers: [],
         owner: owner
     };
     return datastore.update({
         key: key,
         data: newBoat
     }).then(() => { return key });
-}
+};
+
+/**
+ * 
+ * @param {string} id of the boat to patch
+ * @param {string} name of the patched boat
+ * @param {string} type of the patched boat
+ * @param {Number} length of the patched boat
+ * @param {string} owner of the boat
+ * @returns the updated boat with the updated attributes
+ */
+const putBoat = (id, name, type, length, owner) => {
+    const key = datastore.key([BOATS, parseInt(id, 10)]);
+    const newBoat = {
+        name: name,
+        type: type,
+        length: length,
+        containers: [],
+        owner: owner
+    };
+    return datastore.update({
+        key: key,
+        data: newBoat
+    }).then(() => { return key });
+};
+
+
 
 /**
  * Function that returns a boat by the id
@@ -108,7 +152,12 @@ const getBoat = (req, id) => {
         });
 };
 
-const getBoatForPatch = id => {
+/**
+ * 
+ * @param {string} id of the boat
+ * @returns boat matching the id
+ */
+const getBoatForUpdateAndDelete = id => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
     return datastore.get(key);
 };
@@ -118,7 +167,7 @@ const getBoatForPatch = id => {
  * @param {string} id of the boat
  * @param {object} owner of the boat
  */
-const deleteBoat = (id, owner) => {
+const deleteBoat = id => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
     return datastore.delete(key);
 };
@@ -143,6 +192,7 @@ router.post('/', checkJwt, (req, res) => {
                     name: req.body.name,
                     type: req.body.type,
                     length: req.body.length,
+                    containers: [],
                     owner: req.user.sub,
                     self: `${req.protocol}://${req.get("host")}${req.baseUrl}/${key.id}`
                 };
@@ -161,114 +211,66 @@ router.patch('/:boat_id', checkJwt, (req, res) => {
     if(Object.keys(req.body).indexOf("owner") > -1) {
         res.status(400).json({ Error: "Cannot update the owner of the boat." });
     }
-    if(req.body.name && req.body.type && req.body.length) {
-        getBoatForPatch(req.params.boat_id)
+    getBoatForUpdateAndDelete(req.params.boat_id)
         .then(boat => {
-            boat[0].name = req.body.name;
-            boat[0].type = req.body.type;
-            boat[0].length = req.body.length;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(() => {
-                        console.log(boat);
-                        res.status(200).end()
-                    });
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
+            let { name, type, length } = req.body;
+
+            //Check which properties are in the request body
+            //Set the properties to the appropriate fields in the body else remain the same
+            if(!name) {
+                name = boat[0].name;
             }
-        })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.name && req.body.type) {
-        getBoatForPatch(req.params.boat_id)
-        .then(boat => {
-            boat[0].name = req.body.name;
-            boat[0].type = req.body.type;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(() => {
-                        console.log(boat);
-                        res.status(200).end()
-                    });
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
+            if(!type) {
+                type = boat[0].type;
             }
-        })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.name && req.body.length) {
-        getBoatForPatch(req.params.boat_id)
-        .then(boat => {
-            boat[0].name = req.body.name;
-            boat[0].length = req.body.length;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(() => {
-                        console.log(boat);
-                        res.status(200).end()
-                    });
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
+            if(!length) {
+                length = boat[0].length;
             }
-        })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.type && req.body.length) {
-        getBoatForPatch(req.params.boat_id)
-        .then(boat => {
-            boat[0].type = req.body.type;
-            boat[0].length = req.body.length;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(() => {
-                        console.log(boat);
-                        res.status(200).end()
-                    });
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
-            }
-        })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.name) {
-        getBoatForPatch(req.params.boat_id)
-            .then(boat => {
-                boat[0].name = req.body.name;
-                try {
-                    patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                        .then(() => {
-                            console.log(boat);
-                            res.status(200).end()
-                        });
-                } catch (err) {
+            patchBoat(req.params.boat_id, name, type, length, req.user.sub)
+                .then(() => {
+                    res.status(204).end();
+                })
+                .catch(() => {
                     res.status(400).json({ Error: "Could not patch boat attribute" });
-                }
-            })
-            .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.type) {
-        getBoatForPatch(req.params.boat_id)
-        .then(boat => {
-            boat[0].type = req.body.type;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(res.status(200).end());
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
-            }
+                });
         })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else if(req.body.length) {
-        getBoatForPatch(req.params.boat_id)
-        .then(boat => {
-            boat[0].length = req.body.length;
-            try {
-                patchBoat(req.params.boat_id, boat[0].name, boat[0].type, boat[0].length, req.user.sub)
-                    .then(res.status(200).end());
-            } catch (err) {
-                res.status(400).json({ Error: "Could not patch boat attribute" });
-            }
-        })
-        .catch(() => res.status(404).json({ Error: "No boat with boat_id exists" }));
-    } else {
-        res.status(400).json({ Error: "Something went wrong" });
-    }
+        .catch(() => {
+            res.status(404).json({ Error: "No boat with boat_id exists" });
+        });
 });
+
+//Put user boat properties
+router.put('/:boat_id', checkJwt, (req, res) => {
+    if(req.get('Content-Type') !== 'application/json') {
+        res.status(415).json({ Error: 'Server only accepts application/json data.' });
+    } else if(!checkJwt) {
+        res.status(401).end();
+    }
+    if(Object.keys(req.body).indexOf("owner") > -1) {
+        res.status(400).json({ Error: "Cannot update the owner of the boat." });
+    }
+    let { name, type, length } = req.body;
+    if(name && type && length) {
+        getBoatForUpdateAndDelete(req.params.boat_id)
+            .then(boat => {
+                if(!boat[0]) {
+                    res.status(404).json({ Error: "No boat with boat_id exists" });
+                } else if(boat[0].owner && boat[0].owner !== req.user.sub) {
+                    res.status(403).json({ Error: "Boat is owned by someone else" });
+                } else {
+                    putBoat(req.params.boat_id, name, type, length, req.user.sub)
+                        .then(() => {
+                            res.status(204).end();
+                        })
+                        .catch(() => {
+                            res.status(400).json({ Error: "Could not update boat entitiy." });
+                        });
+                }
+            });
+    } else {
+        res.status(400).json({ Error: "The request object is missing at least one of the required attributes." });
+    }
+})
 
 //Get all boats of the owner
 router.get('/', checkJwt, (req, res) => {
@@ -283,7 +285,7 @@ router.delete('/:boat_id', checkJwt, (req, res) => {
     if(!checkJwt) {
         res.status(401).json({ Error: "Missing/Invalid Jwt"});
     } else {
-        getBoat(req.params.boat_id)
+        getBoatForUpdateAndDelete(req.params.boat_id)
             .then(boat => {
                 if(!boat[0]) {
                     res.status(404).json({ Error: "No boat with this boat_id exists" });
@@ -297,15 +299,15 @@ router.delete('/:boat_id', checkJwt, (req, res) => {
     }
 });
 
-//Get boat by id
+//Get owner boat by id
 //Supports viewing boat in JSON only
-router.get('/:boat_id', (req, res) => {
+router.get('/:boat_id', checkJwt, (req, res) => {
     getBoat(req, req.params.boat_id)
         .then(boat => {
             if(boat) {
                 const accepts = req.accepts(['application/json']);
                 if(!accepts) {
-                    res.status(406).send('Not Acceptable');
+                    res.status(406).json({ Error: 'Not Acceptable' });
                 } else if(accepts === 'application/json') {
                     res.status(200).json(boat);
                 } else {
