@@ -7,7 +7,7 @@ const config = require('config');
 const JWKSURI = config.get('jwksUri');
 const DOMAIN = config.get('domain');
 
-const USERS = "Users";
+const CONTAINERS = "Containers";
 const BOATS = "Boats";
 
 const router = express.Router();
@@ -93,13 +93,15 @@ const getAllOwnerBoats = (req, owner) => {
  * @param {string} owner of the boat
  * @returns the updated boat with the updated attributes
  */
-const patchBoat = (id, name, type, length, owner) => {
+const patchBoat = async (id, name, type, length, owner) => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
+    const boat = await getBoatForUpdateAndDelete(id);
+    const { containers } = boat[0];
     const newBoat = {
         name: name,
         type: type,
         length: length,
-        containers: [],
+        containers: containers,
         owner: owner
     };
     return datastore.update({
@@ -117,13 +119,15 @@ const patchBoat = (id, name, type, length, owner) => {
  * @param {string} owner of the boat
  * @returns the updated boat with the updated attributes
  */
-const putBoat = (id, name, type, length, owner) => {
+const putBoat = async (id, name, type, length, owner) => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
+    const boat = await getBoatForUpdateAndDelete(id);
+    const { containers } = boat[0];
     const newBoat = {
         name: name,
         type: type,
         length: length,
-        containers: [],
+        containers: containers,
         owner: owner
     };
     return datastore.update({
