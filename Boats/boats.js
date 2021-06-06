@@ -74,15 +74,12 @@ const getAllOwnerBoats = (req, owner) => {
         .then(entities => {
             var count = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner).length;
             //set the results to the results from the datastore
-            results.item = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner);
-            const boats = entities[0].map(ds.fromDatastore);
+            results.items = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner);
+            // const boats = entities[0].map(ds.fromDatastore);
             if(entities[1].moreResults !== ds.datastore.NO_MORE_RESULTS) {
                 results.next = `${req.protocol}://${req.get("host")}${req.baseUrl}?cursor=${entities[1].endCursor}`;
             }
-            for(let i = 0; i < boats.length; i++) {
-                results.item[i].self = `${req.protocol}://${req.get("host")}${req.baseUrl}/${boats[i].id}`;
-            }
-            results.item.push({
+            results.items.push({
                 boats: count
             });
             return results;
@@ -488,6 +485,9 @@ router.delete('/:boat_id/containers/:container_id', checkJwt, (req, res) => {
 router.get('/', checkJwt, (req, res) => {
     getAllOwnerBoats(req, req.user.sub)
         .then(boats => {
+            for(let i = 0; i < boats.items.length - 1; i++) {
+                boats.items[i].self = `${req.protocol}://${req.get("host")}${req.baseUrl}/${boats.items[i].id}`;
+            }
             res.status(200).json(boats);
         });
 });

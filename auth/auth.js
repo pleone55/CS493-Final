@@ -61,7 +61,8 @@ router.get('/', (req, res) => {
 
 router.get('/authorize', (req, res) => {
     state = createState(14);
-    const url = 'http://localhost:8000/oauth';
+    const url = 'https://final-project-leonep-1041pm.wl.r.appspot.com/oauth';
+    // const url = 'http://localhost:8000/oauth'
     const redirect = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${url}&scope=profile&state=${state}`;
     res.redirect(redirect);
 });
@@ -77,7 +78,8 @@ router.get('/oauth', (req, res) => {
                 code: req.query.code,
                 client_id: CLIENT_ID,
                 client_secret: CLIENT_SECRET,
-                redirect_uri: 'http://localhost:8000/oauth',
+                redirect_uri: 'https://final-project-leonep-1041pm.wl.r.appspot.com/oauth',
+                // redirect_uri: 'http://localhost:8000/oauth',
                 grant_type: 'authorization_code'
             },
             headers: {
