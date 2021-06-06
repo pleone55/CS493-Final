@@ -141,6 +141,14 @@ const putBoat = async (id, name, type, length, owner) => {
     }).then(() => { return key });
 };
 
+/**
+ * 
+ * @param {object} req the request sent
+ * @param {object} res the response received
+ * @param {string} boat_id of the boat
+ * @param {string} container_id of the container
+ * @returns updated Boat with Container added
+ */
 const addContainerToBoat = async (req, res, boat_id, container_id) => {
     const key = datastore.key([BOATS, parseInt(boat_id, 10)]);
     const container = await getContainerForUpdateAndDelete(container_id);
@@ -183,6 +191,14 @@ const addContainerToBoat = async (req, res, boat_id, container_id) => {
     .then(() => { return key });
 };
 
+/**
+ * 
+ * @param {object} req the request sent
+ * @param {object} res the response received
+ * @param {string} boat_id of the boat
+ * @param {string} container_id of the container
+ * @returns the updated container with boat it is assigned to
+ */
 const addBoatToContainer = async (req, res, boat_id, container_id) => {
     const key = datastore.key([CONTAINERS, parseInt(container_id, 10)]);
     const container = await getContainerForUpdateAndDelete(container_id);
@@ -222,6 +238,13 @@ const addBoatToContainer = async (req, res, boat_id, container_id) => {
     }
 };
 
+/**
+ * 
+ * @param {object} res the response received
+ * @param {string} boat_id of the boat
+ * @param {string} container_id of the container
+ * @returns the updated boat with the container removed
+ */
 const removeContainerFromBoat = async (res, boat_id, container_id) => {
     const key = datastore.key([BOATS, parseInt(boat_id, 10)]);
     const boat = await getBoatForUpdateAndDelete(boat_id);
@@ -247,6 +270,12 @@ const removeContainerFromBoat = async (res, boat_id, container_id) => {
     }
 };
 
+/**
+ * 
+ * @param {object} res the response received
+ * @param {string} container_id of the container
+ * @returns the container with the boat removed
+ */
 const removeBoatFromContainer = async(res, container_id) => {
     const key = datastore.key([CONTAINERS, parseInt(container_id, 10)]);
     const container = await getContainerForUpdateAndDelete(container_id);
@@ -485,12 +514,6 @@ router.delete('/:boat_id', checkJwt, (req, res) => {
 //Get owner boat by id
 //Supports viewing boat in JSON only
 router.get('/:boat_id', checkJwt, (req, res) => {
-    // getBoatForUpdateAndDelete(req.params.boat_id)
-    //     .then(boat => {
-    //         if(boat[0].owner && boat[0].owner !== req.user.sub) {
-    //             res.status(403).json({ Error: "Boat is owned by someone else" });
-    //         }
-    //     })
     getBoat(req, req.params.boat_id)
         .then(boat => {
             if(boat) {
