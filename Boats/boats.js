@@ -16,6 +16,7 @@ router.use(bodyParser.json());
 const ds = require('../Datastore/datastore');
 const datastore = ds.datastore;
 
+
 //Function to check if the JWT value is valid
 const checkJwt = jwt({
     secret: jwksRsa.expressJwtSecret({
@@ -57,7 +58,8 @@ const createBoat = (name, type, length, owner) => {
 
 /**
  * Function to return all boats
- * @param {object} owner of the boats
+ * @param {object} req the request of current base url
+ * @param {string} owner of the boats
  * @returns all boats with jwt authentication that belong to the owner
  */
 const getAllOwnerBoats = (req, owner) => {
@@ -70,7 +72,7 @@ const getAllOwnerBoats = (req, owner) => {
     }
     return datastore.runQuery(query)
         .then(entities => {
-            console.log(entities);
+            var count = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner).length;
             //set the results to the results from the datastore
             results.item = entities[0].map(ds.fromDatastore).filter(item => item.owner === owner);
             const boats = entities[0].map(ds.fromDatastore);
@@ -80,6 +82,9 @@ const getAllOwnerBoats = (req, owner) => {
             for(let i = 0; i < boats.length; i++) {
                 results.item[i].self = `${req.protocol}://${req.get("host")}${req.baseUrl}/${boats[i].id}`;
             }
+            results.item.push({
+                boats: count
+            });
             return results;
         });
 };
@@ -136,7 +141,137 @@ const putBoat = async (id, name, type, length, owner) => {
     }).then(() => { return key });
 };
 
+const addContainerToBoat = async (req, res, boat_id, container_id) => {
+    const key = datastore.key([BOATS, parseInt(boat_id, 10)]);
+    const container = await getContainerForUpdateAndDelete(container_id);
+    const boat = await getBoatForUpdateAndDelete(boat_id);
+    const { name, type, length, containers, owner } = boat[0];
+    const { number, weight, content } = container[0];
 
+    //Check if container id is already on the boat
+    let isOnBoat = false;
+    for(let i = 0; i < containers.length; i++) {
+        if(containers[i].id === container_id) {
+            isOnBoat = true;
+            res.status(403).json({ Error: "Container is already assigned a boat. Remove before assigning." });
+            break;
+        }
+    }
+
+    if(!isOnBoat) {
+        let containerObj = {
+            id: container_id,
+            number: number,
+            weight: weight,
+            content: content,
+            self: `${req.protocol}://${req.get("host")}${'/containers'}/${container_id}`
+        };
+        containers.push(containerObj);
+    }
+    const updatedBoat = {
+        name: name,
+        type: type,
+        length: length,
+        containers: containers,
+        owner: owner
+    };
+
+    return datastore.update({
+        key: key,
+        data: updatedBoat
+    })
+    .then(() => { return key });
+};
+
+const addBoatToContainer = async (req, res, boat_id, container_id) => {
+    const key = datastore.key([CONTAINERS, parseInt(container_id, 10)]);
+    const container = await getContainerForUpdateAndDelete(container_id);
+    const getBoat = await getBoatForUpdateAndDelete(boat_id);
+    if(!getBoat[0] || !container[0]) {
+        res.status(404).json({ Error: "No boat with boat_id and/or container with container_id exists" });
+    } else {
+        const { name } = getBoat[0];
+        const { number, weight, content, boat } = container[0];
+
+        let isAssigned = false;
+        if(boat.id && boat.name) {
+            isAssigned = true;
+            res.status(403).json({ Error: "Container is already assigned a boat. Remove before assigning." });
+            return;
+        }
+
+        if(!isAssigned) {
+            //Insert boat info into container
+            boat.id = boat_id;
+            boat.name = name;
+            boat.self = `${req.protocol}://${req.get("host")}${req.baseUrl}/${boat_id}`
+        }
+
+        const updatedContainer = {
+            number: number,
+            weight: weight,
+            content: content,
+            boat: boat
+        };
+
+        return datastore.update({
+            key: key,
+            data: updatedContainer
+        })
+        .then(() => { return key });
+    }
+};
+
+const removeContainerFromBoat = async (res, boat_id, container_id) => {
+    const key = datastore.key([BOATS, parseInt(boat_id, 10)]);
+    const boat = await getBoatForUpdateAndDelete(boat_id);
+    if(!boat[0]) {
+        res.status(404).json({ Error: "No boat with boat_id and/or container with container_id exists" });
+    } else {
+        const { name, type, length, containers, owner } = boat[0];
+        const updatedContainer = containers.filter(c => c.id !== container_id);
+
+        const updatedBoatContainers = {
+            name: name,
+            type: type,
+            length: length,
+            containers: updatedContainer,
+            owner: owner
+        };
+
+        return datastore.update({
+            key: key,
+            data: updatedBoatContainers
+        })
+        .then(() => { return key });
+    }
+};
+
+const removeBoatFromContainer = async(res, container_id) => {
+    const key = datastore.key([CONTAINERS, parseInt(container_id, 10)]);
+    const container = await getContainerForUpdateAndDelete(container_id);
+    if(!container[0]) {
+        res.status(404).json({ Error: "No boat with boat_id and/or container with container_id exists" });
+    } else { 
+        const { number, weight, content, boat } = container[0];
+        boat.id = null;
+        boat.name = null;
+        boat.self = null;
+
+        const updatedContainer = {
+            number: number,
+            weight: weight,
+            content: content,
+            boat: boat
+        };
+
+        return datastore.update({
+            key: key,
+            data: updatedContainer
+        })
+        .then(() => { return key });
+    }
+};
 
 /**
  * Function that returns a boat by the id
@@ -163,6 +298,16 @@ const getBoat = (req, id) => {
  */
 const getBoatForUpdateAndDelete = id => {
     const key = datastore.key([BOATS, parseInt(id, 10)]);
+    return datastore.get(key);
+};
+
+/**
+ * 
+ * @param {string} id of the container
+ * @returns container matching the id
+ */
+const getContainerForUpdateAndDelete = id => {
+    const key = datastore.key([CONTAINERS, parseInt(id, 10)]);
     return datastore.get(key);
 };
 
@@ -217,26 +362,30 @@ router.patch('/:boat_id', checkJwt, (req, res) => {
     }
     getBoatForUpdateAndDelete(req.params.boat_id)
         .then(boat => {
-            let { name, type, length } = req.body;
+            if(boat[0].owner && boat[0].owner !== req.user.sub) {
+                res.status(403).json({ Error: "Boat is owned by someone else" });
+            } else {
+                let { name, type, length } = req.body;
 
-            //Check which properties are in the request body
-            //Set the properties to the appropriate fields in the body else remain the same
-            if(!name) {
-                name = boat[0].name;
+                //Check which properties are in the request body
+                //Set the properties to the appropriate fields in the body else remain the same
+                if(!name) {
+                    name = boat[0].name;
+                }
+                if(!type) {
+                    type = boat[0].type;
+                }
+                if(!length) {
+                    length = boat[0].length;
+                }
+                patchBoat(req.params.boat_id, name, type, length, req.user.sub)
+                    .then(() => {
+                        res.status(204).end();
+                    })
+                    .catch(() => {
+                        res.status(400).json({ Error: "Could not patch boat attribute" });
+                    });
             }
-            if(!type) {
-                type = boat[0].type;
-            }
-            if(!length) {
-                length = boat[0].length;
-            }
-            patchBoat(req.params.boat_id, name, type, length, req.user.sub)
-                .then(() => {
-                    res.status(204).end();
-                })
-                .catch(() => {
-                    res.status(400).json({ Error: "Could not patch boat attribute" });
-                });
         })
         .catch(() => {
             res.status(404).json({ Error: "No boat with boat_id exists" });
@@ -274,7 +423,37 @@ router.put('/:boat_id', checkJwt, (req, res) => {
     } else {
         res.status(400).json({ Error: "The request object is missing at least one of the required attributes." });
     }
-})
+});
+
+//Add Containers to Boat and add Boat to Container
+router.put('/:boat_id/containers/:container_id', checkJwt, (req, res) => {
+    if(!checkJwt) {
+        res.status(401).end();
+    }
+    addContainerToBoat(req, res, req.params.boat_id, req.params.container_id);
+    addBoatToContainer(req, res, req.params.boat_id, req.params.container_id)
+        .then(() => {
+            res.status(204).end();
+        })
+        .catch(() => {
+            res.status(400).json({ Error: "Could not add container and/or boat" });
+        });
+});
+
+//Delete Containers from Boat and delete Boat from Container
+router.delete('/:boat_id/containers/:container_id', checkJwt, (req, res) => {
+    if(!checkJwt) {
+        res.status(401).end();
+    }
+    removeContainerFromBoat(res, req.params.boat_id, req.params.container_id)
+    removeBoatFromContainer(res, req.params.container_id)
+        .then(() => {
+            res.status(204).end();
+        })
+        .catch(() => {
+            res.status(400).json({ Error: "Could not remove container and/or boat" });
+        });
+});;
 
 //Get all boats of the owner
 router.get('/', checkJwt, (req, res) => {
@@ -306,6 +485,12 @@ router.delete('/:boat_id', checkJwt, (req, res) => {
 //Get owner boat by id
 //Supports viewing boat in JSON only
 router.get('/:boat_id', checkJwt, (req, res) => {
+    // getBoatForUpdateAndDelete(req.params.boat_id)
+    //     .then(boat => {
+    //         if(boat[0].owner && boat[0].owner !== req.user.sub) {
+    //             res.status(403).json({ Error: "Boat is owned by someone else" });
+    //         }
+    //     })
     getBoat(req, req.params.boat_id)
         .then(boat => {
             if(boat) {
@@ -321,6 +506,18 @@ router.get('/:boat_id', checkJwt, (req, res) => {
                 res.status(404).json({ Error: "No boat with this boat_id exists." });
             }
         });
+});
+
+//Delete all Boats
+router.delete('/', (req, res) => {
+    res.set('Accept', 'GET, POST');
+    res.status(405).json({ Error: "Cannot delete all boats" });
+});
+
+//Update All Boats
+router.put('/', (req, res) => {
+    res.set('Accept', 'GET, POST');
+    res.status(405).json({ Error: "Cannot update all boats" });
 });
 
 /* ------------- End Boats Routes ------------- */

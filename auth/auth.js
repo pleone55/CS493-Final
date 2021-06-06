@@ -131,7 +131,9 @@ router.get('/granted', (req, res) => {
                     if(!uid[0]) {
                         createUser(firstName, lastName, uniqueId);
                     } else {
-                        uid[0].uniqueId == uniqueId ? console.log("User with uniqueId already exists. User is authenticated instead.") : undefined;
+                        uid[0].uniqueId == uniqueId ? context.loggedIn = `User with Unique Id of ${uniqueId} already exists. User is logged in` 
+                        : 
+                        undefined;
                     }
                     res.render('userData', context);
                 });

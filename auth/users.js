@@ -77,6 +77,17 @@ router.get('/', (req, res) => {
         });
 });
 
+router.get('/:user_id', (req, res) => {
+    getUser(req, req.params.user_id)
+        .then(user => {
+            if(!user) {
+                res.status(404).json({ Error: "No user with user_id exists" });
+            } else {
+                res.status(200).json(user);
+            }
+        });
+});
+
 router.delete('/:user_id', (req, res) => {
     getUser(req, req.params.user_id)
         .then(user => {
