@@ -1,0 +1,4559 @@
+{
+	"info": {
+		"_postman_id": "2f982fcc-8ba1-479d-a0de-7c17e049e176",
+		"name": "Final Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var user1 = pm.response.json()[0][\"id\"];\r",
+							"if(pm.response.json().length > 1) {\r",
+							"    var user2 = pm.response.json()[1][\"id\"];\r",
+							"} else {\r",
+							"    var user2 = null;\r",
+							"}\r",
+							"\r",
+							"pm.environment.set(\"user_id1\", user1);\r",
+							"pm.environment.set(\"user_id2\", user2);\r",
+							"\r",
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"At least one user exists\", function(){\r",
+							"   pm.expect(Object.keys(pm.response.json()).length).to.be.at.least(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"User Id 1 matches environment\", function(){\r",
+							"   pm.expect(pm.response.json()[\"id\"]).to.eq(pm.environment.get(\"user_id1\"))\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"User Id 1 matches environment\", function(){\r",
+							"   pm.expect(pm.response.json()[\"id\"]).to.eq(pm.environment.get(\"user_id2\"))\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 no content\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/users/{{user_id1}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"users",
+						"{{user_id1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User 1 Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"boat_id\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Batman\");\r",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Carrier\");\r",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(200);\r",
+							"    pm.expect(pm.response.json()[\"owner\"]).to.eq(\"114702849965767616620\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Batman\",\r\n    \"type\": \"Carrier\",\r\n    \"length\": 200\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User Boat with Missing Attributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Batman\",\r\n    \"type\": \"Carrier\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User Boat with Incorrect Content-Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", function () {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Batman\",\r\n    \"type\": \"Carrier\",\r\n    \"length\": 200\r\n}",
+					"options": {
+						"raw": {
+							"language": "html"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Owner 1 Boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm that when a boat is created the number of boats increases by one\", () => {\r",
+							"    var boats = pm.response.json()[\"items\"];\r",
+							"    postman.setEnvironmentVariable(\"boat_count\", boats.length);\r",
+							"    console.log(\"Boats: \", environment.boat_count);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Boat User 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Boat with Invalid Accept Headers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 406\", () => {\r",
+							"    pm.response.to.have.status(406);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq('Not Acceptable');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a Boat with Invalid Boat ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User 1 Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"boat_id2\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Aries\");\r",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Carrier\");\r",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(150);\r",
+							"    pm.expect(pm.response.json()[\"owner\"]).to.eq(\"114702849965767616620\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Aries\",\r\n    \"type\": \"Carrier\",\r\n    \"length\": 150\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Owner 1 Boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm that when a boat is created the number of boats increases by one\", () => {\r",
+							"    var boats = pm.response.json()[\"items\"].length - 1;\r",
+							"    postman.setEnvironmentVariable(\"boat_count\", boats.length);\r",
+							"    pm.expect(boats).to.eq(2);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Owner Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Owner Boat with Invalid Boat ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with boat_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE3MTllYjk1N2Y2OTU2YjU4MThjMTk2OGZmMTZkZmY3NzRlNzA4ZGUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMjAzNjE1NjIzMDUtYTN1N3AzMWlkaWo3MTVsMmNqMGhxcmpyYTIzMHBvYWEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxMjAzNjE1NjIzMDUtYTN1N3AzMWlkaWo3MTVsMmNqMGhxcmpyYTIzMHBvYWEuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTQ3MDI4NDk5NjU3Njc2MTY2MjAiLCJhdF9oYXNoIjoiVkV5VjJYZTZyS0NQSnZqUWV2UXR5dyIsIm5hbWUiOiJQYXVsIFZpbmNlbnQgTGVvbmUiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2p2ZUh0R0I0MjN6M1dRSE8xR0NZSmVTZFhlbE4tdDZ1c0dlNlpCRXc9czk2LWMiLCJnaXZlbl9uYW1lIjoiUGF1bCBWaW5jZW50IiwiZmFtaWx5X25hbWUiOiJMZW9uZSIsImxvY2FsZSI6ImVuIiwiaWF0IjoxNjIyNzgzNDk2LCJleHAiOjE2MjI3ODcwOTZ9.G9e4CozPsW-qgFjUf_uutbLICJ78Ndxv9lxoyQ-j3TmpPUZsErWoqlozj-MnfuUTbRAecpNS3QzQwGckf_WZ6yCiWQP0doM6akhIeLKxktCX59n6nAsg1SEpO5FtKppAu_0hSr0PWfVk9ypUgmt5xwWyc3HMXqpbnH7yy-8BNxV2Dh7_qgJdhkSgsUs1dN2shGU1bAVTyoehzhLJItSB8cMMVaFNpeAZgbQfoDk5r_un7MEDe2NHWKGQgrNI_543xlq6-6gB6_WEgrq7I3bA7X-I72j7n1LiksGTxP2OiWF5rB0k5qkKIR_x3HTy795bEcwXT9G61uzz5ylc0AEJYg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat Name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Goddess\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat after Name Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm the boat name is updated\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eql(\"Goddess\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"Speeder\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Type Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm the boat name is updated\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.type).to.eql(\"Speeder\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1Boat Length",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"length\": 100\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Length Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Confirm the boat name is updated\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.length).to.eql(100);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat with Owner in Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update the owner of the boat.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"owner\": 123456\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Trying to Patch Owner",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Owner remains the same\", () => {\r",
+							"    pm.expect(pm.response.json()[\"owner\"]).to.eq(\"114702849965767616620\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch sending non JSON data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", () => {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\"name\": \"Aries\""
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Invalid Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"401 status code\", () => {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{invalid_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Name\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Invalid Boat ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with boat_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"Name\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat Name and Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Aries\",\r\n    \"type\": \"Carrier\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Name and Type Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Name and Type changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eq(\"Aries\");\r",
+							"    pm.expect(jsonData.type).to.eq(\"Carrier\");\r",
+							"    pm.expect(jsonData.length).to.eql(100);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat Name and Length",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Goddess\",\r\n    \"length\": 250\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Name and Length Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Name and Length changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eq(\"Goddess\");\r",
+							"    pm.expect(jsonData.type).to.eq(\"Carrier\");\r",
+							"    pm.expect(jsonData.length).to.eql(250);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat Type and Length",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"Speeder\",\r\n    \"length\": 100\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Type and Length Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Name and Length changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eq(\"Goddess\");\r",
+							"    pm.expect(jsonData.type).to.eq(\"Speeder\");\r",
+							"    pm.expect(jsonData.length).to.eql(100);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat All Attributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Aries\",\r\n    \"type\": \"Carrier\",\r\n    \"length\": 200\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1  Boat After All Attributes Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Name and Length changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eq(\"Aries\");\r",
+							"    pm.expect(jsonData.type).to.eq(\"Carrier\");\r",
+							"    pm.expect(jsonData.length).to.eql(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put User 1 Boat Entity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Zeus\",\r\n    \"type\": \"Cruiser\",\r\n    \"length\": 125\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 1 Boat After Put",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Boat Entity changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name).to.eq(\"Zeus\");\r",
+							"    pm.expect(jsonData.type).to.eq(\"Cruiser\");\r",
+							"    pm.expect(jsonData.length).to.eql(125);\r",
+							"    pm.expect(pm.response.json()[\"owner\"]).to.eq(\"114702849965767616620\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Boat with Missing Attribute",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Batman\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put User 1 Boat with Owner Id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update the owner of the boat.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Zeus\",\r\n    \"type\": \"Cruiser\",\r\n    \"length\": 125,\r\n    \"owner\": \"234893448949\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Boat with Incorrect Content-Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", () => {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Zeus\",\r\n    \"type\": \"Cruiser\",\r\n    \"length\": 125\r\n}",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Boat with Invalid Boat ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with boat_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Zeus\",\r\n    \"type\": \"Cruiser\",\r\n    \"length\": 125\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"container_id\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"number\"]).to.eq(1);\r",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(50);\r",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Toys\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 1,\r\n    \"weight\": 50,\r\n    \"content\": \"Toys\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Container with Missing Attributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 1,\r\n    \"weight\": 50\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Container with Invalid Content Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", function () {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 1,\r\n    \"weight\": 50,\r\n    \"content\": \"Toys\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Containers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Confirm that when a boat is created the number of boats increases by one\", () => {\r",
+							"    var containers = pm.response.json()[\"items\"];\r",
+							"    postman.setEnvironmentVariable(\"container_count\", containers.length);\r",
+							"    console.log(\"Boats: \", environment.container_count);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"container_id2\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"number\"]).to.eq(102);\r",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(150);\r",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Weights\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 102,\r\n    \"weight\": 150,\r\n    \"content\": \"Weights\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Containers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 status code\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Confirm that when a boat is created the number of boats increases by one\", () => {\r",
+							"    var containers = pm.response.json()[\"item\"];\r",
+							"    postman.setEnvironmentVariable(\"container_count\", containers.length);\r",
+							"    console.log(\"Boats: \", environment.container_count);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Container with Invalid Container ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No container with container_id exists\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container with Invalid Accept Headers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 406\", () => {\r",
+							"    pm.response.to.have.status(406);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq('Not Acceptable');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container with Invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No container with container_id exists\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Number Property",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 22\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container After Number Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Number changed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"number\"]).to.eq(22);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Weight Property",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weight\": 121\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container After Weight Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Weight changed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(121);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Content Property",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"Dumbbells\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container After Content Patch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content changed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Dumbbells\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Multiple Properties",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 101,\r\n    \"content\": \"Boat Parts\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Container After Content Patch Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content changed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"number\"]).to.eq(101);\r",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Boat Parts\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch with No Properties in the Request Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch with Boat Property in the Request Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update the boat property directly.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 12,\r\n    \"weight\": 13,\r\n    \"content\": \"Items\",\r\n    \"boat\": {\r\n        \"id\": \"1232323\",\r\n        \"name\": \"Test\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Container with Invalid Content Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", () => {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<!DOCTYPE html>\r\n<html>\r\n    <body>\r\n        <li>\r\n            <ul>Number: 12</ul>\r\n        </li>\r\n    </body>\r\n</html>",
+					"options": {
+						"raw": {
+							"language": "html"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Container with Invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No container with container_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weight\": 134\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Container Entity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"204 status code\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 1001,\r\n    \"weight\": 500,\r\n    \"content\": \"Anchors\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Container After Put Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Container Entity changed\", () => {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.number).to.eq(1001);\r",
+							"    pm.expect(jsonData.weight).to.eq(500);\r",
+							"    pm.expect(jsonData.content).to.eql(\"Anchors\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Container with Missing Attribute",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error Message\", function () {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weight\": 1000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Container with Boat Property in Request Body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"400 status code\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"400 error message\", function () {\r",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update the boat property directly.\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 2,\r\n    \"weight\": 1000,\r\n    \"content\": \"Toys\",\r\n    \"boat\": {\r\n        \"id\": \"10392\",\r\n        \"name\": \"Zeus\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Container with Invalid Content Type",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"415 status code\", () => {\r",
+							"    pm.response.to.have.status(415);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Server only accepts application/json data.\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 2,\r\n    \"weight\": 1000,\r\n    \"content\": \"Toys\",\r\n}",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Container with Invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No container with container_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 2,\r\n    \"weight\": 1000,\r\n    \"content\": \"Toys\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container to Boat and Boat to Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Boat After Loading Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Container info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var containers = jsonData.containers[0]\r",
+							"    pm.expect(containers.number).to.eq(1);\r",
+							"    pm.expect(containers.weight).to.eq(50);\r",
+							"    pm.expect(containers.content).to.eq(\"Toys\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + containers.id;\r",
+							"    pm.expect(containers.self).to.eq(self_url);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Container After Loading Onto Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Boat info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var boat = jsonData.boat\r",
+							"    pm.expect(boat.name).to.eq(\"Goddess\");\r",
+							"    pm.expect(boat.id).to.eq(pm.environment.get(\"boat_id\"));\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.environment.get(\"boat_id\");\r",
+							"    pm.expect(boat.self).to.eq(self_url);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container2 to Boat1 and Boat1 to Container2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/containers/{{container_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"containers",
+						"{{container_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Boat After Loading Container2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Container info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var containers = jsonData.containers.length\r",
+							"    console.log(containers);\r",
+							"    pm.expect(containers).to.eq(2);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Container2 After Loading Onto Boat1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Boat info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var boat = jsonData.boat\r",
+							"    pm.expect(boat.name).to.eq(\"Batman\");\r",
+							"    pm.expect(boat.id).to.eq(pm.environment.get(\"boat_id\"));\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.environment.get(\"boat_id\");\r",
+							"    pm.expect(boat.self).to.eq(self_url);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container2 to Boat1 and Boat1 to Container2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 403\", () => {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Container is already assigned a boat. Remove before assigning.\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/containers/{{container_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"containers",
+						"{{container_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Owner Boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Containers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container1 to Boat2 and Boat2 to Container1 Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 403\", () => {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Container is already assigned a boat. Remove before assigning.\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id2}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id2}}",
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Container From Boat and Remove Boat From Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id2}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id2}}",
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Boat After Removing Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Container Removed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"containers\"].length).to.eq(0);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Container After Removing Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Boat info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var boat = jsonData.boat\r",
+							"    pm.expect(boat.name).to.eq(null);\r",
+							"    pm.expect(boat.id).to.eq(null);\r",
+							"    pm.expect(boat.self).to.eq(null);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container1 to Boat2 and Boat2 to Container1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id2}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id2}}",
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Container to Boat and Boat to Container With Invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with boat_id and/or container with container_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Boat2  After Removing Container1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Container Removed\", () => {\r",
+							"    pm.expect(pm.response.json()[\"containers\"].length).to.eq(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id2}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Container After Removing Boat Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Boat test\", () => {\r",
+							"    pm.expect(pm.response.json()[\"boat\"].name).to.eq(\"Aries\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers/{{container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers",
+						"{{container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Container From Boat and Remove Boat From Container with Invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"404 status code\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with boat_id and/or container with container_id exists\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/containers/{{invalid_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"containers",
+						"{{invalid_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete All Boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 405\", () => {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot delete all boats\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete All Containers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 405\", () => {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot delete all containers\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update All Containers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 405\", () => {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update all containers\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update All Boats",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code 405\", () => {\r",
+							"    pm.response.to.have.status(405);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Cannot update all boats\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User 2 Boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"user2_boat_id\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Goddess\");\r",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Carrier\");\r",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(200);\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Goddess\",\r\n    \"type\": \"Carrier\",\r\n    \"length\": 200\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 2 Boats",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 2 Boat",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{user2_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{user2_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User 2 Boat",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"user2_container_id\", pm.response.json()[\"id\"]);\r",
+							"\r",
+							"pm.test(\"201 status code\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"content is valid\", function () {\r",
+							"    pm.expect(pm.response.json()[\"number\"]).to.eq(10);\r",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(150);\r",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Weights\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + pm.response.json()[\"id\"];\r",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"number\": 10,\r\n    \"weight\": 150,\r\n    \"content\": \"Weights\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/containers",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"containers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add User 2 Container to Boat and Boat to Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 204\", () => {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{user2_boat_id}}/containers/{{user2_container_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{user2_boat_id}}",
+						"containers",
+						"{{user2_container_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User 2 Boat After Adding Container",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status Code 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Container info\" , () => {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var containers = jsonData.containers[0]\r",
+							"    pm.expect(containers.number).to.eq(102);\r",
+							"    pm.expect(containers.weight).to.eq(150);\r",
+							"    pm.expect(containers.content).to.eq(\"Weights\");\r",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/containers/\" + containers.id;\r",
+							"    pm.expect(containers.self).to.eq(self_url);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{user2_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{user2_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch User 1 Boat with User 2 JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", () => {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Boat is owned by someone else\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"Name\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put User 1 Boat with User 2 JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"403 status code\", () => {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error Code\", () => {\r",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Boat is owned by someone else\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Test\",\r\n    \"type\": \"Name\",\r\n    \"length\": 12\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
